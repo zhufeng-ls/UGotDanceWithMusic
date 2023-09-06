@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package PowerPackage;
+
+service PowerServiceGrpc {   //定义服务,用在rpc传输中
+    rpc getPowerValue(PowerRequest) returns (PowerValueResponse){ };
+    rpc startPowerListener(PowerRequest) returns (stream PowerValueResponse){ };
+    rpc stopPowerListener(PowerRequest) returns (PowerCommonResponse){ };
+
+}
+
+message PowerRequest {
+
+} 
+
+message PowerValueInfo {
+    int32 level = 1; //沒用
+    int32 scale = 2; //电量百分比
+    float temperature = 3;
+    float voltage = 4;
+    bool power_plug = 5; //0 电源线没插 1 电源线插入
+    int32 status = 6; //0 正常 1 低电 2 充电中 3 充满电 4 异常
+}
+
+message PowerValueResponse {
+    int32 code = 1;
+    string msg = 2;
+    PowerValueInfo data = 3;
+} 
+
+message PowerCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}

@@ -1,0 +1,63 @@
+/** 升级接口定义 */
+syntax = "proto3";
+
+package UpgradePackage;
+service UpgradeServiceGrpc {   //定义服务,用在rpc传输中
+    rpc upgrade(UpgradeRequest) returns ( UpgradeCommonResponse){ };
+    rpc listenUpgradeStatus(UpgradeListenRequest) returns (stream UpgradeProgressResponse){ };
+    rpc stopUpgrade(StopUpgradeRequest) returns ( UpgradeCommonResponse){ };
+    rpc getUpgradeStatus(UpgradeCommonRequest) returns ( UpgradeStatusResponse){ };
+}
+
+
+message UpgradeInfo {
+    repeated string deviceId = 1;
+    string type = 2;
+    string url = 3;
+    string md5 = 4;
+    string version = 5;
+    string incrementUrl = 6;
+    string incrementMd5 = 7;
+}
+
+message ProgressInfo {
+    string deviceId = 1;
+    string type = 2;
+    int32 progress = 3;
+    int32 status = 4;
+    string msg = 5;
+}
+
+message UpgradeRequest {
+    repeated UpgradeInfo upgradeInfo = 1;
+}
+
+message UpgradeListenRequest {
+
+}
+
+message StopUpgradeRequest {
+    string deviceId = 1;
+    string type = 2;
+}
+message UpgradeCommonRequest {
+
+}
+
+message UpgradeCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message UpgradeStatusResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 status = 3;// -1 idle; 0 外设升级; 1 主控升级
+}
+
+message UpgradeProgressResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 status = 3;// -1 idle; 0 外设升级; 1 主控升级
+    repeated ProgressInfo progressInfo = 4;
+}

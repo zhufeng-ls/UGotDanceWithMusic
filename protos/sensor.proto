@@ -1,0 +1,103 @@
+/** 传感器接口定义 */
+syntax = "proto3";
+
+package SensorPackage;
+
+service SensorServiceGrpc {   //定义服务,用在rpc传输中
+    rpc getDistanceSensorValue(DistanceSensorRequest) returns (DistanceSensorResponse){ };
+    rpc startDistanceSensorStream(DistanceSensorRequest) returns (stream DistanceSensorResponse){ };
+    rpc stopDistanceSensorStream(DistanceSensorRequest) returns (SensorCommonResponse){ };
+    rpc getIMUSensorValue(SensorCommonRequest) returns (IMUSensorResponse){ };
+    
+    rpc startCalibrate(StartCalibrateRequest) returns (stream StartCalibrateResponse) {};
+    rpc cancelCalibrate(CancelCalibrateRequest) returns (CancelCalibrateResponse) {};
+    // rpc needCalibrate(CalibrateStateRequest) returns (CalibrateStateResponse) {};
+    // rpc isCalibrating(CalibrateStateRequest) returns (CalibrateStateResponse) {};
+    
+    rpc getAttitudeTilt(AttitudeTiltRequest) returns (AttitudeTiltResponse) {};
+    
+    rpc calibrateIMUWithAVFeedback(StartCalibrateRequest) returns (stream StartCalibrateResponse) {};
+    rpc cancelCalibrateIMUWithAVFeedback(CancelCalibrateRequest) returns (CancelCalibrateResponse) {};
+}
+
+message SensorCommonRequest {
+
+}
+message SensorCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+//distance Sensor
+message DistanceSensorRequest {
+    string deviceId = 1;
+} 
+
+message DistanceSensorInfo {
+    string deviceId = 1;
+    float value = 2;
+}
+message DistanceSensorResponse {
+    int32 code = 1;
+    string msg = 2;
+    DistanceSensorInfo data = 3;
+} 
+
+//IMU Sensor
+message IMUSensorInfo {
+    float gyro_x = 1;//角速度
+    float gyro_y = 2;
+    float gyro_z = 3;
+    float accel_x = 4;//加速度
+    float accel_y = 5;
+    float accel_z = 6;
+    float compass_x = 7;//磁力计
+    float compass_y = 8;
+    float compass_z = 9;
+    float roll = 10;//欧拉角
+    float pitch = 11;
+    float yaw = 12;
+}
+
+message IMUSensorResponse {
+    int32 code = 1;
+    string msg = 2;
+    IMUSensorInfo data = 3;
+} 
+
+// calibrate
+message StartCalibrateRequest {}
+message StartCalibrateResponse {
+    int32 code = 1;
+    string msg = 2;
+    string step = 3;
+    string state = 4;
+}
+
+message CancelCalibrateRequest {}
+message CancelCalibrateResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+// message CalibrateStateRequest {}
+// message CalibrateStateResponse {
+//     int32 code = 1;
+//     string msg = 2;
+//     bool state = 3;
+// }
+
+
+// attitude
+message AttitudeTiltRequest {}
+message AttitudeTiltResponse {
+    int32 code = 1;
+    string msg = 2;
+    bool tilt_forward = 3;
+    bool tilt_back = 4;
+    bool tilt_left = 5;
+    bool tilt_right = 6;
+    bool face_up = 7;
+    bool face_down = 8;
+    bool shaking = 9;
+}

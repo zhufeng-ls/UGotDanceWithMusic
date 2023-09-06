@@ -1,0 +1,141 @@
+/** AI视觉接口定义 */
+syntax = "proto3";
+
+package AIVisionPackage;
+
+service AIVisionServiceGrpc { //定义服务,用在rpc传输中
+    //训练模型
+    rpc trainAndSave(TrainAndSaveRequest) returns (stream TrainAndSaveResponse) {};
+    //加载模型
+    rpc loadModel(LoadModelRequest) returns (LoadModelResponse) {};
+    //设置参数
+    rpc setModelPara(SetModelParaRequest) returns (SetModelParaResponse) {};
+    //推理
+    rpc doModelInference(InferenceRequest) returns (InferenceResponse) {};
+    //释放部分模型,当列表为空时表示释放所有模型
+    rpc releaseModel(ReleaseModelRequest) returns (ReleaseModelResponse) {};
+    //开始自动推理
+    rpc startAutoInference(AutoInferenceRequest) returns (stream InferenceResponse) {};
+    //停止自动推理
+    rpc stopAutoInference(EmptyRequest) returns (CommonResponse) {};
+    //使能推理结果上送
+    //使能之后，每次推理（自动推理，单次推理）后，将结果通过消息上送
+    rpc startPushInferenceResult(EmptyRequest) returns (stream InferenceResponse) {};
+    //去使能推理结果上送
+    //去使能之后，推理结果不上送
+    rpc stopPushInferenceResult(EmptyRequest) returns (CommonResponse) {};
+    //摄像头个数查询
+    rpc getCameraNumber(EmptyRequest) returns (CameraNumberResponse) {};
+}
+
+//训练模型
+//Request
+message TrainAndSavePara {
+    string name = 1;
+    repeated string categoryNames = 2;
+}
+message TrainAndSaveRequest {
+    string model = 1;//模块名
+    TrainAndSavePara para = 2;
+}
+
+//Response
+message TrainAndSaveResponse {
+    int32 code = 1;
+    string msg = 2;
+    string data = 3;//status 0、启动开始训练；1、训练中；2、训练完成
+}
+
+//加载模型
+//Request
+message LoadModelInfoIn {
+    string model = 1;//模块名
+    string para = 2;//参数
+}
+message LoadModelRequest {
+    repeated LoadModelInfoIn models = 1;
+}
+//Response
+message LoadModelResponse {
+    int32 code = 1;
+    string msg = 2;
+    string data = 3;
+}
+
+//设置参数
+//Request
+message SetModelParaRequest {
+    string model = 1;//模块名
+    string invoke = 2;//需要设置的参数类型
+    string para = 3;//参数
+}
+
+//Response
+message SetModelParaResponse {
+    int32 code = 1;
+    string msg = 2;
+    string data = 3;
+}
+
+//推理
+//Request
+message InferenceModelIn {
+    string model = 1;//模块名
+    string para = 2;//参数
+}
+message InferenceRequest {
+    bool need_pic = 1;//是否需要返回图片
+    repeated InferenceModelIn models = 2;
+}
+
+//Response
+message InferenceModelOut {
+    string model = 1;//模块名
+    string data = 2;//参数
+}
+message InferenceData {
+    string img = 1;
+    repeated InferenceModelOut inference = 2;
+}
+message InferenceResponse {
+    int32 code = 1;
+    string msg = 2;
+    InferenceData data = 3;
+}
+
+//释放部分模型
+//Request
+message ReleaseModelRequest {
+    repeated string models = 1;
+}
+
+//Response
+message ReleaseModelResponse {
+    int32 code = 1;
+    string msg = 2;
+    string data = 3;
+}
+
+//自動推理
+//Request
+message AutoInferenceRequest {
+    repeated string models = 1;
+    bool need_pic = 2;
+}
+
+//摄像头个数查询
+message CameraNumberResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 dev_num = 3;//摄像头个数
+}
+
+//通用request&response
+message EmptyRequest {
+
+}
+
+message CommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}

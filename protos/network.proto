@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package NetworkPackage;
+
+//包括Wifi、热点、蓝牙服务等
+service NetworkServiceGrpc {   //定义服务,用在rpc传输中
+    //定义Wifi服务
+    rpc getWifiList(NetworkCommonRequest) returns (WifiListResponse){ };
+    rpc connectWifi(WifiConnectRequest) returns (stream WifiConnectResponse){ };
+    rpc getWifiStatus(NetworkCommonRequest) returns (WifiStateResponse){ };
+    rpc setWifiEnable(WifiEnableRequest) returns (NetworkCommonResponse){ };
+    rpc disconnectWifi(NetworkCommonRequest) returns (NetworkCommonResponse){ };
+    rpc startWifiStateListener(NetworkCommonRequest) returns (stream WifiStateResponse){ };
+    rpc stopWifiStateListener(NetworkCommonRequest) returns (NetworkCommonResponse){ };
+    //定义热点服务
+    rpc startHotspot(HotspotInfoRequest) returns (NetworkCommonResponse){ };
+    rpc stopHotspot(NetworkCommonRequest) returns (NetworkCommonResponse){ };
+    rpc getHotspotState(NetworkCommonRequest) returns (HotspotStateResponse){ };
+
+    //定义蓝牙手柄服务
+    rpc getBTJoypadStatus(NetworkCommonRequest) returns (BTJoypadStatusResponse){ };
+
+    //物联网相关
+    //开/关
+    rpc setBrocastEnable(SetBrocastEnableRequest) returns (NetworkCommonResponse) { };
+    //设置频道
+    rpc setBrocastPort(SetBrocastPortRequest) returns (NetworkCommonResponse) { };
+    //发送广播
+    rpc sendBrocastMsg(SendBrocastMsgRequest) returns (NetworkCommonResponse) { };
+    //获取接收到的广播消息
+    rpc getReceivedBrocastMsg(NetworkCommonRequest) returns (GetReceivedBrocastMsgResponse) { };
+}
+
+
+message NetworkCommonRequest {
+
+} 
+
+message WifiConnectRequest {
+    string ssid = 1;
+    string passwd = 2;
+    bool saved = 3; //是否为已经连接成功并保存的wifi 
+    bool isEncryp = 4;//是否加密
+} 
+
+message WifiConnectResponse {
+    int32 code = 1;
+    string msg = 2;
+    string ssid = 3;
+    int32 state = 4;
+    string bssid = 5;
+    string ext = 6;
+} 
+
+message WifiEnableRequest {
+    string enable = 1;//"1":enable,"0":disenable
+} 
+
+message WifiListInfo {
+    string ssid = 1;
+    int32 rssi = 2; //wifi强度：-100~0
+    string bssid=3;
+	int32 frequency=4;
+	string flags=5;
+}
+
+//连接过的wifi 
+message WifiSavedInfo {
+    string id = 1;
+    string ssid = 2;  
+    string bssid=3;
+    string state=4;
+    string ext=5;
+}
+
+
+message WifiListResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated WifiListInfo data = 3;
+    repeated WifiSavedInfo saveDwifi = 4;
+} 
+
+// message WifiStatusResponse {
+//     int32 code = 1;
+//     string msg = 2;
+//     string status = 3;
+//     string ssid = 4;
+// } 
+
+
+// bssid=3c:78:43:1b:c2:7c
+// freq=5745
+// ssid=UBT-Users
+// id=0
+// mode=station
+// pairwise_cipher=CCMP
+// group_cipher=CCMP
+// key_mgmt=WPA2-PSK
+// wpa_state=COMPLETED
+// ip_address=10.10.62.184
+// p2p_device_address=d4:8a:3b:eb:eb:3b
+// address=d4:8a:3b:eb:eb:3b
+// uuid=6becf551-b9b5-508b-88ab-fc5afc75286e
+
+message WifiStateInfo {
+    string ip_address = 1;
+    string mac = 2;
+    string freq = 3;
+    string ssid = 4;
+    string rssi = 5;//wifi强度：-100~0
+    string state = 6;//Unconnected = 0, Connected =1 , Connecting = 2
+    string mode = 7;
+    string key_mgmt = 8;
+    string group_cipher = 9;
+    string pairwise_cipher = 10;
+    string uuid = 11;
+    string p2p_device_address = 12;
+}
+
+message WifiStateResponse {
+    int32 code = 1;
+    string msg = 2;
+    WifiStateInfo data = 3;
+}
+
+message HotspotInfoRequest {
+    string hot_name = 1;
+    string passwd = 2;
+} 
+
+message HotspotStateResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 state = 3; // 0表示关闭, 1表示打开
+} 
+
+message NetworkCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message BTJoypadStatusResponse {
+    int32 code = 1;
+    string msg = 2;
+    string status = 3;
+}
+
+message SetBrocastEnableRequest {
+    string enable = 1;
+}
+
+message SetBrocastPortRequest {
+    string nPort = 1;
+}
+
+message SendBrocastMsgRequest {
+    string stMsg = 1;
+}
+
+message GetReceivedBrocastMsgResponse {
+    int32 code = 1;
+    string msg = 2;
+    string received_message = 3;
+}

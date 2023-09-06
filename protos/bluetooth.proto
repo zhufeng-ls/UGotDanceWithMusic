@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package BluetoothPackage;
+
+ 
+service BluetoothServiceGrpc {
+    // 开关系统蓝牙
+    rpc setEnable(BtEnableRequest)  returns (BtEnableResponse){ };
+    // 获取系统蓝牙状态
+    rpc getBtStatus(BtStatusRequest)  returns (BtStatusResponse){ };
+    // 订阅蓝牙状态变化    
+    rpc startBtStateListen(BtStateListenRequest) returns (stream BtStatusResponse){ };
+    // 取消订阅蓝牙状态
+    rpc stopBtStateListen(BtStateListenRequest) returns (BtStateListenResponse){ };
+    // 查找附近蓝牙设备
+    rpc startDiscovery(StartDiscoveryRequest)  returns (stream StartDiscoveryResponse){ };
+    // 取消查找
+    rpc cancelDiscovery(CancelDiscoveryRequest)  returns (CancelDiscoveryResponse){ };
+    // 是否在查找
+    rpc isDiscovery(IsDiscoveryRequest)  returns (IsDiscoveryResponse){ };
+    // 获取扫描到的远程蓝牙设备列表, 包含发现的和已配对的
+    rpc getBtFoundedDeviceList(BtFoundedDeviceListRequest) returns (BtFoundedDeviceListResponse){ };
+    // 断开蓝牙连接
+    rpc disconnectBt(BtDisconnectRequest) returns (BtDisconnectResponse){ };
+    //配对
+    rpc pairBt(BtPairRequest) returns (BtPairResponse){ };
+    //取消配对
+    rpc unpairBt(BtUnpairRequest) returns (BtUnpairResponse){ };
+}
+
+
+message BtDevice{
+    string name = 1; //外设名称
+    string address = 2; //mac address
+    string class=3; //设备类型
+    int32 rssi=4; //信号强度
+    bool is_connected=5;// 是否连接
+}
+
+
+message BtEnableRequest{
+    int32 enable = 1;//1 = on, 0 = off
+}
+
+message BtEnableResponse{
+    int32 code = 1;
+    string msg = 2;
+}
+
+message BtStatusRequest{}
+
+message BtStatusResponse{
+    int32 code = 1;
+    string msg = 2;
+    bool poweron= 3; //是否打开蓝牙
+    bool connected=4; //是否连接蓝牙外设
+    BtDevice remoteDevice = 5; //外设信息
+}
+
+message BtFoundedDeviceListRequest{}
+
+message BtFoundedDeviceListResponse{
+    int32 code = 1;
+    string msg = 2;
+    repeated BtDevice scaned_list = 3;
+    repeated BtDevice paired_list = 4;
+}
+
+message StartDiscoveryRequest{}
+
+
+message StartDiscoveryResponse{
+    int32 code = 1;
+    string msg = 2;
+    BtDevice device = 3;
+}
+
+message CancelDiscoveryRequest{}
+
+message CancelDiscoveryResponse{
+    int32 code = 1;
+    string msg = 2;
+}
+
+message IsDiscoveryRequest{}
+
+
+message IsDiscoveryResponse{
+    int32 code = 1;
+    string msg = 2;
+    bool is_dicovery = 3;//是否在发现蓝牙
+}
+
+message BtDisconnectRequest{}
+
+message BtDisconnectResponse{
+    int32 code = 1;
+    string msg = 2;
+}
+
+message BtPairRequest{
+    string address = 1;
+}
+
+message BtPairResponse{
+    int32 code = 1;
+    string msg = 2;
+}
+
+message BtUnpairRequest{
+    string address = 1;
+}
+
+message BtUnpairResponse{
+    int32 code = 1;
+    string msg = 2;
+}
+
+message BtStateListenRequest{}
+
+message BtStateListenResponse{
+    int32 code = 1;
+    string msg = 2;
+}

@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package AudioPackage;
+
+service AudioServiceGrpc {   //定义服务,用在rpc传输中
+    //ASR语音
+    rpc setAudioAsr(AudioAsrRequest) returns (AudioAsrResponse){ };
+    //设置TTS
+    rpc setAudioTts(AudioTtsRequest) returns (AudioCommonResponse){ };
+    //设置NLP
+    rpc setAudioNlp(AudioNlpRequest) returns (AudioNlpResponse){ };
+    //添加音频文件到数据库
+    rpc insertAudioFile(AudioFileRequest) returns (AudioCommonResponse){ };
+    //删除音频文件
+    rpc deleteAudioFile(AudioFileRequest) returns (AudioCommonResponse){ };
+    //获取音频列表
+    rpc getAudioFileList(AudioFileListRequest) returns (AudioFileListResponse){ };
+    //修改音频名称
+    rpc modifyAudioFileName(ModifyAudioNameRequest) returns (AudioCommonResponse){ };
+    //播放音频文件
+    rpc playAudioFile(AudioPlayRequest) returns (AudioCommonResponse){ };
+    //开始录音
+    rpc startRecordAudioFile(AudioEmptyRequest) returns (AudioCommonResponse){ };
+    //停止录音
+    rpc stopRecordAudioFile(AudioEmptyRequest) returns (AudioRecordResponse){ };
+    //停止播放音频
+    rpc stopPlayAudio(AudioEmptyRequest) returns (AudioCommonResponse){ };
+    //获取声音方向角度
+    rpc getDirectionOfAudio(AudioDirectionRequest) returns (AudioDirectionResponse){ };
+    //开启声源定位
+    rpc enableAudioDirection(AudioEmptyRequest) returns (AudioCommonResponse){ };
+    //关闭声源定位
+    rpc disableAudioDirection(AudioEmptyRequest) returns (AudioCommonResponse){ };
+    //获取声音响度(db)
+    rpc getCurrentRms(AudioEmptyRequest) returns (AudioRmsResponse){ };
+}
+
+message AudioAsrRequest {
+    int32 begin_vad = 1; //开始静音端点检测,单位：毫秒
+    int32 end_vad = 2; // 结束静音端点检测,单位：毫秒
+    int32 duration = 3; // 最长录音时长，单位：毫秒
+} 
+
+message AudioAsrResponse {
+    int32 code = 1; //返回码， 0表示成功，其他失败
+    string msg = 2; //失败原因说明
+    string data = 3; // 返回結果
+} 
+
+message AudioTtsRequest {
+    string text = 1; //需要播报的tts文本内容
+    int32 voice_type = 2; //声音类型 0-女声，1-男声
+    int32 sequence = 3;
+}
+
+message AudioNlpRequest {
+    string text = 1; //用于处理的文本内容
+}
+
+message AudioNlpResponse {
+    int32 code = 1; //返回码， 0表示成功，其他失败
+    string msg = 2; //失败原因说明
+    string data = 3; // 返回結果
+} 
+
+message AudioFileRequest {
+    string audio_name = 1; //添加音频的名字，此为唯一，可用于数据库查找
+    int32 audio_type = 2; // 0 表示上传音频, 1 表示录音
+}
+
+message AudioFileListRequest {
+    int32 audio_type = 1; // 0 表示上传音频, 1 表示录音
+}
+
+message AudioFileInfo {
+    string file = 1; // 音频文件名
+    int32 len  = 2; // 音频文件长度，单位毫秒
+}
+
+message AudioFileListResponse {
+    int32 code = 1; //返回码， 0表示成功，其他失败
+    string msg = 2; //失败原因说明
+    repeated AudioFileInfo files = 3; // 音频文件列表
+}
+
+message ModifyAudioNameRequest {
+    int32 audio_type = 1; // 0 表示上传音频, 1 表示录音
+    string old_name = 2; // 原名称
+    string new_name = 3; // 目标名称
+}
+
+message AudioPlayRequest {
+    int32 audio_type = 1; // 0 表示上传音频, 1 表示录音,2 表示内部音效
+    string audio_file = 2; // 音频的名字，此为唯一，可用于数据库查找
+    int32 sequence = 3;
+}
+
+message AudioRecordResponse {
+    int32 code = 1; // 返回码， 0表示成功，其他失败
+    string msg = 2; // 失败原因说明
+    int32 len  = 3; // 录音文件长度，单位毫秒
+}
+
+message AudioDirectionRequest {
+    int32 duration = 1; //监听时长，单位ms，不能小于500ms
+}
+
+message AudioDirectionResponse {
+    int32 code = 1; // 返回码， 0表示成功，其他失败
+    string msg = 2; // 失败原因说明
+    int32 angle  = 3; // 0~360°， -1表示没有声音或者无效
+}
+
+//通用request&response
+message AudioEmptyRequest {
+
+}
+
+message AudioCommonResponse {
+    int32 code = 1; // 返回码， 0表示成功，其他失败
+    string msg = 2; // 失败原因说明
+    int32 sequence = 3;
+}
+
+message AudioRmsResponse {
+    int32 code = 1; // 返回码， 0表示成功，其他失败
+    string msg = 2; // code 不为0时 失败原因说明
+    int32 angle  = 3; // 角度 0~360°
+    int32 rms = 4; // 音量rms 值，例如： -21(-21db)
+}

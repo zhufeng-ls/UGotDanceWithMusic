@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+package DevicePackage;
+
+//包括设备列表、显示屏、灯条等服务
+service DeviceServiceGrpc {
+    //定义设备列表服务
+    rpc getDeviceList(DeviceListRequest) returns (DeviceListResponse){ };
+    rpc startDeviceListChangeListener(DeviceListRequest) returns (stream DeviceListResponse){ };
+    rpc stopDeviceListChangeListener(DeviceListRequest) returns (DeviceCommonResponse){ };
+    //定义显示屏服务
+    rpc setDisplayUI(DisplayUIRequest) returns (DisplayUIResponse){ };
+    rpc getDisplayPictureList(DisplayPictureListRequest) returns (DisplayPictureListResponse){ };
+    rpc deleteDisplayPicture(DeleteDisplayPictureRequest) returns (DeviceCommonResponse){ };
+    rpc stopDisplayUI(DeviceCommonRequest) returns (DeviceCommonResponse){ };
+    //设置屏幕背光亮度
+    rpc setBrightness(SetBrightnessRequest) returns (BrightnessResponse){ };
+    //获取背光亮度值
+    rpc getBrightness(GetBrightnessRequest) returns (BrightnessResponse){ };
+    //获取wlan0 Mac地址    
+    rpc getMacAddress(MacAddressRequest) returns (MacAddressResponse){ };
+    //设置音量
+    rpc setVolume(SetVolumeRequest) returns (VolumeResponse){ };
+    //获取音量
+    rpc getVolume(GetVolumeRequest) returns (VolumeResponse){ };
+    //静音
+    rpc muteVolume(MuteVolumeRequest) returns (VolumeResponse){ };
+    //选择模型
+    rpc selectModel(SelectModelRequest) returns (SelectModelResponse){ };
+    //获取模型
+    rpc getDeviceModel(DeviceModelRequest) returns (DeviceModelResponse){ };
+    //获取软件版本号
+    rpc getDeviceSoftwareVersion(DeviceCommonRequest) returns (DeviceVersionResponse){ };
+    
+    //灯效
+    rpc showLightEffect(LightEffectRequest) returns (LightResponse){ };
+    //灯光
+    rpc showLightColor(LightColorRequest) returns (LightResponse){ };
+    //关闭灯光
+    rpc turnOffLight(TurnOffLightRequest) returns (LightResponse){ };
+    // 修改
+    rpc changeLanguage(ChangeLangRequest) returns (ChangeLangResponse){ };
+}
+
+//灯效
+message LightEffectRequest {
+    int32 effect = 1; //0常亮1关闭2呼吸3闪烁
+    int32 level = 2; //快(0)，稍快，正常，稍慢，慢
+    uint32 color = 3;
+}
+
+//ONBOARD_LIGHT_TOP = 0,
+//ONBOARD_LIGHT_LEFT = 1,
+//ONBOARD_LIGHT_RIGHT = 2,
+//ONBOARD_LIGHT_DOWN = 3
+
+message LightColorRequest {
+    int32 top_light = 1;
+    int32 left_light = 2;
+    int32 right_light = 3;
+    int32 down_light = 4;
+}
+
+message TurnOffLightRequest {
+    repeated int32 lights = 1; //要关的灯列表
+}
+
+message LightResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+//设备列表
+message DeviceListRequest {
+
+} 
+message DeviceInfo {
+    string deviceId = 1;
+    string type = 2;
+    string firmware = 3;
+    string serial = 4;
+    int32 status = 5;
+}
+message DeviceListInfo {
+    repeated DeviceInfo device_list = 1;
+} 
+message DeviceListResponse {
+    int32 code = 1;
+    string msg = 2;
+    map<string,DeviceListInfo> data = 3;
+} 
+
+message DeviceNameRequest {
+
+} 
+message DeviceNameResponse {
+    int32 code = 1;
+    string msg = 2;
+    string name = 3;
+} 
+
+//显示屏
+message DisplayTextInfo {
+    string text = 1; //显示文本内容
+    int32 font_size = 2;
+    string font_color = 3;//00000000~FFFFFFFF(透明度+RGB值)
+    bool newline = 4; //是否换行
+}
+message DisplayUIRequest {
+    string background_color = 1; //00000000~FFFFFFFF(透明度+RGB值)
+    string img_name = 2;
+    repeated DisplayTextInfo text_list = 3;
+    bool reset = 4;
+}
+
+message DisplayPictureListRequest {
+
+} 
+
+message DisplayUIResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message DisplayPictureListResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated string name_list = 3;
+}
+
+message DeleteDisplayPictureRequest {
+    string img_name = 1;
+}
+
+//屏幕背光
+message SetBrightnessRequest {
+    int32 percent = 1; //百分比数值 1-100
+}
+
+message GetBrightnessRequest {
+     
+}
+
+message BrightnessResponse {    
+    int32 code = 1;
+    string msg = 2;
+    int32 percent = 3;//百分比数值 1-100
+}
+
+message MacAddressRequest{
+
+}
+
+message MacAddressResponse{
+    int32 code = 1;
+    string msg = 2;
+    string mac = 3; 
+}
+
+message SetVolumeRequest{
+    int32 volume = 1;
+    int32 stream = 2;
+}
+
+message GetVolumeRequest{}
+
+message VolumeResponse{
+    int32 code = 1;
+    string msg = 2;
+    int32 volume = 3; 
+    bool isMute = 4;
+}
+
+message MuteVolumeRequest{
+    bool mute = 1;
+}
+
+//平衡车：balance 麦轮车:mecanum 轮足：wheellegged
+// {"mode_name":"balance","mode_params":""}
+message SelectModelRequest{
+    string name = 1;
+    string params = 2;
+}
+
+message SelectModelResponse{
+    int32 code = 1;
+    string msg = 2;
+    repeated string errorPorts = 3;
+}
+
+message DeviceModelRequest{
+
+}
+
+message DeviceModelResponse{
+    int32 code = 1;
+    string msg = 2;
+    string name = 3;
+}
+
+message DeviceVersionResponse{
+    int32 code = 1;
+    string msg = 2;
+    string software_version = 3;
+}
+
+//Common
+message DeviceCommonRequest {
+
+}
+
+message DeviceCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message ChangeLangRequest {
+    string lang = 1; //cn, en
+    string ext = 2;//非必要
+}
+
+message ChangeLangResponse {
+    int32 code = 1;
+    string msg = 2;
+}

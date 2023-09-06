@@ -1,0 +1,163 @@
+/** 开源引脚接口定义 */
+syntax = "proto3";
+
+package GpioPackage;
+
+/*
+
+一: gpio 引脚对应，传值的时候转换一下
+
+1  146 
+2  147
+3  149 (此接口当前是 USB 供电口，不可用)
+4  150
+5  151
+6  131
+
+二: 引脚 PWM 输出
+
+frequency: 频率赫兹
+duty_cycle: slider 的值，范围（0 ～ 255）
+range: 范围，根据需求填 255
+
+三: 串口，开放接口上的串口默认值为：
+
+/dev/ttyS0
+
+四：串口写字符换行功能
+
+只要在字符串后面添加 \r\n 就能实现换行
+
+*/
+
+service GpioServiceGrpc {   //定义服务,用在rpc传输中
+
+    // gpio
+    rpc setGpioExport(SetGpioExportRequest) returns (SetGpioExportResponse) {};
+    rpc readGpio(ReadGpioRequest) returns (ReadGpioResponse) {};
+    rpc setGpioStartExportPwm(SetGpioStartExportPwmRequest) returns (SetGpioStartExportPwmResponse) {};
+    rpc setGpioStopExportPwm(SetGpioStopExportPwmRequest) returns (SetGpioStopExportPwmResponse) {};
+    
+    // serial
+    rpc setSerbaud(SetSerbaudRequest) returns (SetSerbaudResponse) {};
+    rpc serialExportString(SerialExportStringRequest) returns (SerialExportStringResponse) {};
+    
+    // 将数字转换成字符串发送
+    // rpc serialExportNum(SerialExportNumRequest) returns (SerialExportNumResponse) {};
+    rpc serialReadByte(SerialReadByteRequest) returns (SerialReadByteResponse) {};
+    rpc serialReadString(SerialReadStringRequest) returns (SerialReadStringResponse) {};
+    rpc serialReadUtil(SerialReadUtilRequest) returns (SerialReadUtilResponse) {};
+    
+    rpc clearAllGpioAndSerial(ClearAllGpioAndSerialRequest) returns (ClearAllGpioAndSerialResponse) {};
+}
+
+// gpio
+
+message SetGpioExportRequest {
+    string pin = 1;
+    bool value = 2;
+}
+
+message SetGpioExportResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message ReadGpioRequest {
+    string pin = 1;
+}
+
+message ReadGpioResponse {
+    int32 code = 1;
+    string msg = 2;
+    string result = 3;
+}
+
+message SetGpioStartExportPwmRequest {
+    string pin = 1;
+    uint64 frequency = 2; 
+    uint64 duty_cycle = 3;
+    uint64 range = 4;
+}
+
+message SetGpioStartExportPwmResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message SetGpioStopExportPwmRequest {
+    string pin = 1;
+}
+
+message SetGpioStopExportPwmResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message SetSerbaudRequest {
+    string port = 1;
+    uint64 baudrate = 2;
+}
+
+message SetSerbaudResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message SerialExportStringRequest {
+    string port = 1;
+    string value = 2;
+}
+
+message SerialExportStringResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+// message SerialExportNumRequest {
+//     string port = 1;
+//     double value = 2;
+// }
+
+// message SerialExportNumResponse {
+//     int32 code = 1;
+//     string msg = 2;
+// }
+
+message SerialReadByteRequest {
+    string port = 1;
+}
+
+message SerialReadByteResponse {
+    int32 code = 1;
+    string msg = 2;
+    string result = 3;
+}
+
+message SerialReadStringRequest {
+    string port = 1;
+}
+
+message SerialReadStringResponse {
+    int32 code = 1;
+    string msg = 2;
+    string result = 3;
+}
+
+message SerialReadUtilRequest {
+    string port = 1;
+    string char_ = 2;
+}
+
+message SerialReadUtilResponse {
+    int32 code = 1;
+    string msg = 2;
+    string result = 3;
+}
+
+message ClearAllGpioAndSerialRequest {}
+
+message ClearAllGpioAndSerialResponse {
+    int32 code = 1;
+    string msg = 2;
+}

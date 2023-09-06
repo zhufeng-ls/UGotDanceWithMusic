@@ -1,0 +1,232 @@
+/** 舵机接口定义 */
+syntax = "proto3";
+
+package ServoPackage;
+
+service ServoServiceGrpc {   //定义服务,用在rpc传输中
+    rpc setServoRotateBySpeed(ServoRotateBySpeedRequest) returns (ServoRotateResponse){ };
+    rpc setServoRotateByAngle(ServoRotateByAngleRequest) returns (ServoRotateResponse){ };
+    rpc setServoRotateByPWM(ServoRotateByPWMRequest) returns (ServoRotateResponse){ };
+    rpc stopServoRotate(StopServoRotateRequest) returns (ServoCommonResponse){ };
+    rpc getServoAngle(ServoGetAngleRequest) returns (ServoGetAngleResponse){ };
+    //获取转动状态，暂未实现
+    rpc isServoRotating(ServoGetRotatingRequest) returns (ServoGetRotatingResponse){ };
+    //清除舵机异常
+    rpc clearServoFault(ServoFaultClearRequest) returns (ServoCommonResponse){ };
+    //获取舵机异常信息
+    rpc getServoFault(ServoFaultRequest) returns (ServoFaultResponse){ };
+
+    //控制夹手
+    rpc controlSingleClamp(ControlSingleClampRequest) returns (ServoCommonResponse){ };
+    //获取夹手状态
+    rpc getClampStatus(GetClampStatusRequest) returns (GetClampStatusResponse){ };
+
+    // 获取运动信息
+    rpc getMotionInfo(GetMotionInfoRequest) returns (GetMotionInfoResponse){ };
+
+    //机械臂复位
+    rpc roboticArmRestory(RoboticArmRestoryRequest) returns (ServoCommonResponse){ };
+
+    //机械臂移动到指定的位置
+    rpc roboticArmMoveToTargetPostion(RoboticArmMovePostionRequest) returns (ServoCommonResponse){ };
+
+    //设置机械臂关节
+    rpc roboticArmSetJointPosition(RoboticArmSetJointPositionRequest) returns (ServoCommonResponse){ };
+
+    //获取机械臂关节
+    rpc roboticArmGetJoints(RoboticArmGetJointsRequest) returns (RoboticArmGetJointsResponse){ };
+
+}
+
+message RoboticArmGetJointsRequest {
+
+}
+
+message RoboticArmGetJointsInfo {
+    int32 joint_name = 1; 
+    string joint_id = 2;
+}
+
+message RoboticArmGetJointsResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated RoboticArmGetJointsInfo joints = 3;
+}
+
+message ControlSingleClampRequest {
+    int32 status = 1;// 0打开夹手 1闭合夹手
+}
+
+message GetClampStatusRequest {
+    
+}
+
+message GetClampStatusResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 status = 3;//0夹手松开 1夹手闭合
+}
+
+message ServoCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message ServoSpeedInfo {
+    string deviceId = 1;
+    int32 speed = 2;
+    int32 dev = 3;//3舵机4电机
+}
+message ServoAngleInfo {
+    string deviceId = 1;
+    int32 duration = 2;
+    int32 angle = 3;
+    int32 dev = 4;//3舵机4电机
+}
+message ServoPWMInfo {
+    string deviceId = 1;
+    int32 pwm_speed = 2; //0~1000
+    int32 dev = 3;//3舵机4电机
+}
+
+//转动舵机接口
+message ServoRotateBySpeedRequest {
+    repeated ServoSpeedInfo servo_rotate = 1;
+}
+message ServoRotateByAngleRequest {
+    repeated ServoAngleInfo servo_rotate = 1;
+}
+message ServoRotateByPWMRequest {
+    repeated ServoPWMInfo servo_rotate = 1;
+}
+
+message ServoRotateResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+//获取舵机角度接口
+message GetAngleInfo {
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+    int32 mode = 3;//0--掉电，1--上电
+}
+
+message ServoGetAngleRequest {
+    repeated GetAngleInfo angle_info = 1; 
+}
+
+message ServoGetAngleResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated ServoAngleInfo angle_list = 3;
+}
+
+//获取转动状态接口
+message GetRotatingInfo {
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+}
+
+message ServoGetRotatingRequest {
+    repeated GetRotatingInfo rotating_list = 1;
+}
+
+message ServoRotatingInfo {
+    string deviceId = 1;
+    bool rotating = 2;
+    int32 dev = 3;//3舵机4电机
+}
+
+message ServoGetRotatingResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated ServoRotatingInfo status = 3;
+}
+
+message ServoStopInfo {
+    string deviceId = 1;
+    int32 mode = 2;//0--弱锁位，1--强锁位
+    int32 dev = 3;//3舵机4电机
+}
+
+message StopServoRotateRequest {
+    repeated ServoStopInfo servo_list = 1;
+    bool is_all = 2;
+}
+
+//获取运动信息接口
+message GetMotionInfo {
+    //请求参数
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+    //返回参数
+    int32 position = 3;//位置
+    int32 speed = 4;//速度
+    int32 torque = 5;//扭矩
+}
+
+message GetMotionInfoRequest {
+    repeated GetMotionInfo motion_info = 1; 
+}
+
+message GetMotionInfoResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated GetMotionInfo motion_list = 3;
+}
+
+message RoboticArmRestoryRequest {
+
+}
+
+message RoboticArmMovePostionParam {
+    int32 r = 1;//宽
+    int32 h = 2;//高
+    double theta = 3;//角度θ值
+    int32 time = 4;//单位ms
+}
+message RoboticArmMovePostionRequest {
+    RoboticArmMovePostionParam params = 1;
+}
+
+message RoboticArmSetJointPositionParam {
+    int32 joint = 1;//
+    int32 position = 2;//
+    int32 time = 3;//单位ms
+    int32 type = 4;//0控制舵机角度1控制关节角度
+}
+message RoboticArmSetJointPositionRequest {
+    repeated RoboticArmSetJointPositionParam params = 1;
+}
+
+message ServoFaultClear {
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+    int32 fault = 3;//1消除保护，0保持不变
+}
+
+message ServoFaultClearRequest {
+    repeated ServoFaultClear params = 1;
+}
+
+message ServoFault {
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+}
+
+message ServoFaultRequest {
+    repeated ServoFault params = 1;
+}
+
+message ServoFaultInfo {
+    string deviceId = 1;
+    int32 dev = 2;//3舵机4电机
+    int32 status = 3;//异常状态
+}
+
+message ServoFaultResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated ServoFaultInfo data = 3;
+}

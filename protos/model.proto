@@ -1,0 +1,215 @@
+/** 小车模型接口定义 */
+syntax = "proto3";
+
+package ModelPackage;
+
+service ModelServiceGrpc {
+
+    // 模型通用运动控制
+    rpc modelCommonControl(ModelControlRequest) returns (ModelCommonResponse) {};
+
+    //麦轮车
+    // 4个电机控制
+    rpc mecanumMotorControl(MotorControlRequest) returns (ModelCommonResponse) {};
+    // xyz控制
+    rpc mecanumXYZControl(XYZControlRequest) returns (ModelCommonResponse) {};
+    //麦轮车停止
+    rpc mecanumStop(MecanumStopRequest) returns (ModelCommonResponse) {};
+
+    //平衡车
+    //启动/停止小车并保持自平衡
+    rpc balanceKeepBalancing(BalanceKeepBalancingRequest) returns (ModelCommonResponse) {};
+
+    //变形工程车
+    //变形车四个臂角度控制
+    rpc transformArmsControl(TransformArmsControlRequest) returns (ModelCommonResponse) {};
+
+    //设置底盘高度，适用模型：变形车、狗
+    rpc transformSetHeight(TransformSetHeightRequest) returns (ModelCommonResponse) {};
+    //开启/关闭自适应，适用模型：变形车
+    rpc enableAdaptivePose(EnableAdaptivePoseRequest) returns (ModelCommonResponse) {};
+    //变形车按增量升高/降低底盘高度
+    rpc transformSetHeightByIncrement(TransformSetHeightIncrementRequest) returns (ModelCommonResponse) {};
+
+    //轮腿
+    //轮腿恢复到初始高度，适用模型：轮腿、蜘蛛、狗
+    rpc wheelleggedRestory(WheelleggedRestoryRequest) returns (ModelCommonResponse) {};
+    //设置高度
+    rpc wheelleggedSetHeight(WheelleggedSetHeightRequest) returns (ModelCommonResponse) {};
+    //设置左右倾斜角度，适用模型：轮腿、狗
+    rpc wheelleggedSetLeanAngle(WheelleggedSetLeanAngleRequest) returns (ModelCommonResponse) {};
+
+    //加速度，目前只用于平衡车
+    //设置加速度
+    rpc setAcceleration(SetAccelerationRequest) returns (ModelCommonResponse) {};
+    //重置加速度
+    rpc resetAcceleration(ResetAccelerationRequest) returns (ModelCommonResponse) {};
+
+    //设置步态，蜘蛛和狗适用
+    rpc setGait(SetGaitRequest) returns (ModelCommonResponse) {};
+    //执行动作，狗适用
+    rpc performAction(PerformActionRequest) returns (ModelCommonResponse) {};
+
+}
+
+// 模型通用运动控制
+message ModelControlParams {
+    int32 linear_speed = 1; //线速度，也就是平移速度
+    int32 direction = 2; //表示方向的角度值，前进/后退/平移
+    int32 rotate_speed = 3; //左转/右转的速度，左转为负，右转为正
+    //time，mileage互斥，表示前进/后退持续的时间/距离
+    //time，target_angle互斥，表示旋转持续的时间/度数
+    int32 time = 4; //运动持续的时间，单位s
+    int32 mileage = 5; //平移运动持续的距离，单位cm
+    int32 target_angle = 6; //旋转运动的度数，单位度
+}TransformArmsControlParam
+
+message ModelControlRequest {
+    //麦轮车mecanum，平衡车balance，变形车transform，轮腿wheellegged
+    string type = 1;//类型
+    ModelControlParams params = 2;//控制参数
+    int32 client_type = 3;//1表示是蓝牙手柄，0表示是积木块
+}
+
+//Response
+message ModelCommonResponse {
+    int32 code = 1;
+    string msg = 2;
+    string data = 3;
+}
+
+//麦轮车
+//电机控制
+message MotorControlParams {
+    int32 lf_joint = 1;//速度 - 左前轮
+    int32 rf_joint = 2;//速度 - 左后轮
+    int32 lb_joint = 3;//速度 - 右前轮
+    int32 rb_joint = 4;//速度 - 右后轮
+}
+
+message MotorControlRequest {
+    string type = 1;//类型
+    MotorControlParams params = 2;//控制参数
+}
+//xyz控制
+message XYZControlParams {
+    int32 linear_x = 1;//速度 - x
+    int32 linear_y = 2;//速度 - y
+    int32 angle_z = 3;//速度 - z
+}
+
+message XYZControlRequest {
+    string type = 1;//类型
+    XYZControlParams params = 2;//控制参数
+}
+//麦轮车停止
+message MecanumStopRequest {
+    string type = 1;//类型
+}
+
+//平衡车
+//保持平衡
+message BalanceKeepBalancingParams {
+    bool start = 1; //0:停止 1:开始
+    bool keep_balance = 2; //0:不保持平衡 1:保持平衡
+}
+
+message BalanceKeepBalancingRequest {
+    string type = 1;//类型，固定为balance
+    BalanceKeepBalancingParams params = 2;//控制参数
+}
+
+//变形工程车
+message TransformArmsControlParam {
+    int32 joint = 1; //1左前臂2左后臂3右后臂4右前臂
+    int32 position = 2;
+    int32 time = 3;//单位ms
+}
+
+message TransformArmsControlRequest {
+    string type = 1;//类型，固定为 transform
+    TransformArmsControlParam params = 2;
+}
+
+message TransformSetHeightParam {
+    int32 height = 1;//单位mm
+    int32 type = 2;//0原地站立1运动（目前只有狗模型有）
+}
+message TransformSetHeightRequest {
+    string type = 1;//类型，变形车transform四足狗dog
+    TransformSetHeightParam params = 2;
+}
+
+message EnableAdaptivePoseParam {
+    int32 enable = 1;//1开启0关闭
+}
+message EnableAdaptivePoseRequest {
+    string type = 1;//类型，变形车transform
+    EnableAdaptivePoseParam params = 2;
+}
+
+message TransformSetHeightIncrementParam {
+    int32 increment = 1;//单位mm, 正数表示增高，负数表示降低
+    int32 type = 2;//0原地站立1运动（目前只有狗模型有）
+}
+message TransformSetHeightIncrementRequest {
+    string type = 1;//类型，固定为 transform
+    TransformSetHeightIncrementParam params = 2;
+    int32 client_type = 3;//1表示是蓝牙手柄，0表示是积木块
+}
+
+message WheelleggedRestoryRequest {
+    string type = 1;//类型，轮腿wheellegged蜘蛛spider四足狗dog
+}
+
+message WheelleggedSetHeightParam {
+    string type = 1;//"height"表示是设置高度
+    int32 gear = 2;//取值范围(1:高，2:中，3:低)
+}
+message WheelleggedSetHeightRequest {
+    string type = 1;//类型，固定为 wheellegged
+    WheelleggedSetHeightParam params = 2;
+}
+
+message WheelleggedSetLeanAngleParam {
+    int32 pose = 1;//1表示前后倾斜，0表示左右倾斜
+    float inclination_angle = 2;//角度-5～5,负数表示向左和向后，正数表示向前和向右
+}
+message WheelleggedSetLeanAngleRequest {
+    string type = 1;//类型，轮腿wheellegged四足狗dog
+    WheelleggedSetLeanAngleParam params = 2;
+}
+
+message SetAccelerationParams {
+    double linear_x = 1;//线速度的加速度x
+    double linear_y = 2;//线速度的加速度y
+    double linear_z = 3;//线速度的加速度z
+    double angular_x = 4;//角速度的加速度x
+    double angular_y = 5;//角速度的加速度y
+    double angular_z = 6;//角速度的加速度z
+}
+
+message SetAccelerationRequest {
+    string type = 1;//类型
+    SetAccelerationParams params = 2;//控制参数
+}
+
+message ResetAccelerationRequest {
+    string type = 1;//类型，不清楚类型传all
+}
+
+message SetGaitParam {
+    int32 gait = 1;//1对角步态 2匍匐步态(步行步态 - 已废弃)
+}
+message SetGaitRequest {
+    string type = 1;//类型，蜘蛛spider四足狗dog
+    SetGaitParam params = 2;
+}
+
+message PerformActionParam {
+    string actionId = 1;//动作文件id
+}
+message PerformActionRequest {
+    string type = 1;//类型，四足狗dog
+    PerformActionParam params = 2;
+}

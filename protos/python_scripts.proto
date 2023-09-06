@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package UcodePythonPackage;
+
+service UcodePythonServiceGrpc { 
+    rpc runUcodePythonScript(RunPythonScriptRequest) returns (stream RunPythonScriptResponse){ };
+    rpc stopUcodePythonScript(StopPythonScriptRequest) returns (PythonScriptCommonResponse){ };
+    rpc getUcodePythonScriptList(ListPythonScriptRequest) returns (ListPythonScriptResponse){ };
+    rpc deleteUcodePythonScript(DeletePythonScriptRequest) returns (PythonScriptCommonResponse){ };
+    rpc checkUcodePythonScriptMd5(Md5PythonScriptRequest) returns (Md5PythonScriptResponse){ };
+    rpc addPythonLog(AddPythonLogRequest) returns (PythonScriptCommonResponse){ };
+    rpc startPythonLogListener(PythonScriptCommonRequest) returns (stream PythonLogResponse){ };
+    rpc stopPythonLogListener(PythonScriptCommonRequest) returns (PythonScriptCommonResponse){ };
+    rpc startPythonExecuteStatusListener(PythonScriptCommonRequest) returns (stream PythonExecuteStatusResponse){ };
+    rpc stopPythonExecuteStatusListener(PythonScriptCommonRequest) returns (PythonScriptCommonResponse){ };
+
+}
+
+message PythonScriptInfo {
+    string fileName = 1;
+    int64 createTime = 2; //文件创建时间
+    string extra = 3; 
+}
+
+message CheckScriptExistRequest {
+    string fileName = 1;
+}
+
+message RunPythonScriptRequest {
+    string fileName = 1;
+    string from = 2;//从哪调用，ucode or screen_ui 等等
+}
+
+message StopPythonScriptRequest {
+    string fileName = 1;
+}
+
+message DeletePythonScriptRequest {
+    string fileName = 1;
+}
+
+message Md5PythonScriptRequest {
+    string fileName = 1;
+}
+
+message ListPythonScriptRequest {
+
+}
+
+message PythonScriptCommonRequest {
+
+}
+
+message PythonScriptCommonResponse {
+    int32 code = 1; //code = 0, success
+    string msg = 2; //
+}
+
+message RunPythonScriptResponse {
+    int32 code = 1;
+    string msg = 2;
+    int32 status = 3;
+}
+
+message ListPythonScriptResponse {
+    int32 code = 1;
+    string msg = 2;
+    repeated PythonScriptInfo script_list = 3;
+}
+
+message Md5PythonScriptResponse {
+    int32 code = 1;
+    string msg = 2;
+    string md5 = 3;
+}
+
+message AddPythonLogRequest {
+    int32 type = 1; //0表示python内部打印 1表示ucode用户打印，默认为0
+    string message = 2;//log内容
+}
+
+message PythonLogInfo {
+    int32 type = 1; //0表示ucode用户打印 1表示python内部打印，默认为0
+    string message = 2;//log内容
+}
+
+message PythonLogResponse {
+    int32 code = 1;
+    string msg = 2;
+    PythonLogInfo data = 3;
+}
+
+message PythonStatusInfo {
+    int32 status = 1; //0表示脚本停止执行 1表示脚本正在执行，默认为0
+    string filename = 2;//正在执行的文件名称，当脚本不执行时文件名为空
+}
+
+message PythonExecuteStatusResponse {
+    int32 code = 1;
+    string msg = 2;
+    PythonStatusInfo data = 3;
+}
