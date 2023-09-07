@@ -37,22 +37,23 @@ class AudioSegment:
         self.data = []
 
 
+# 节拍模式,即间隔多少拍做一个动作,每拍的时间大约为0.5s.
+beat_mode = 1
+# ugot主控的ip地址,通过 <<设置>> -> <<系统信息>> -> <<本机IP>> 获取.
+ip = "10.10.67.74"
+# 本地的音频文件路径,上传音频或播放音频需要用到这个路径
+audio_file_name = 'resource/zhejiushiai.mp3'
+
 dance = None
 audio = None
-ws = None
 grpc_client = None
-ip = "10.10.67.74"
-audio_file_name = 'resource/zhejiushiai.mp3' # zhejiushiai.mp3' # 4_fast_tante.mp3 # mereke.mp3
-my = MyTime()
-
 beat_times = None
 beat_index = None
 sr = None
 y = None
 energy = None
-beat_mode = 1
-beat_interval = 1
 beat_start_time = 0
+my_time = MyTime()
 
 
 def upload_audio(audio_path):
@@ -68,7 +69,6 @@ def upload_audio(audio_path):
 def analysis_audio():
     global dance
     global audio_file_name
-    global beat_interval
     global energy
     global beat_times
     global beat_index
@@ -89,18 +89,12 @@ def analysis_audio():
 
     # 提取节拍信息
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-    # 提取脉冲信息
+    # 提取能量信息
     energy = librosa.feature.rms(y=y)
     beat_times = librosa.frames_to_time(beat_frames, sr=sr)
     beat_index = (beat_times * sr).astype(int)
-    beat_intervals = np.diff(beat_times)
-    beat_interval = np.mean(beat_intervals)
     beat_start_time = beat_times[0]
-    print("beat time start: ", beat_times[0], " beat_interval: ", beat_interval)
-
-
-def analysis_beat():
-    pass
+    print("beat time start: ", beat_times[0])
 
 
 def display():
@@ -120,7 +114,6 @@ def dance_refer_to_music():
     # 最少运动时间为10毫秒
     last_time = -0.01
     for i in range(beat_index.size):
-        print('once')
         my = MyTime()
         my.add_time_point()
         cur = y[int(beat_index[i])]
@@ -161,7 +154,7 @@ def on_key(event):
 
 
 def dance_by_beat_diff(audio_segment):
-    # 播放音乐
+    # 在pc上播放音乐
     # sd.play(audio_segment.data)
     # sd.wait()
 
@@ -199,11 +192,11 @@ def dance_by_beat_diff(audio_segment):
                          True,
                          audio_segment.reset_time)
 
-    my.add_time_point()
-    print("diff time: ", my.print(),
+    my_time.add_time_point()
+    print("diff time: ", my_time.print(),
           ' dance: ', audio_segment.dance_time,
           ' reset: ', audio_segment.reset_time)
-    my.add_time_point()
+    my_time.add_time_point()
 
 
 def handle_audio_segment(audio_segment, audio_segment_temp, last, high):
@@ -225,7 +218,7 @@ def dance_by_huge_change_beats():
     size = beat_index.size
     last_high_beat = False
     audio_segment = AudioSegment()
-    my.add_time_point()
+    my_time.add_time_point()
 
     for i in range(size):
         # 获取两个节拍之间的数据
@@ -263,7 +256,7 @@ def dance_by_huge_change_beats():
         current_time_2 = MyTime.now()
         audio_segment.dance_time += beat_time
         handle_audio_segment(audio_segment, audio_segment_temp, beat_index[i], high_mean)
-        my.add_time_point()
+        my_time.add_time_point()
 
         current_time_3 = MyTime.now()
 
@@ -272,7 +265,7 @@ def dance_by_huge_change_beats():
               current_time_2, ' ', current_time_3)
 
 
-def init_audio():
+def play_audio():
     global audio
     global grpc_client
 
@@ -336,7 +329,7 @@ if __name__ == "__main__":
         display()
 
     if played:
-        thread = threading.Thread(target=init_audio)
+        thread = threading.Thread(target=play_audio)
         thread.daemon = True
         thread.start()
 

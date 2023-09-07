@@ -66,6 +66,7 @@ class DanceUtil:
         self.grpc.set_joint_position(-30, tm)
 
     def set_action_detail(self, lf, lb, rb, rf, tm_f=0.234):
+        # 这里除20,是因为舵机运动的单位是20ms.
         tm = int(tm_f * 1000 / 20)
         self.grpc.set_action(Joint(self.left_forward_joint_id
                                    , lf, tm),
@@ -79,6 +80,13 @@ class DanceUtil:
         time.sleep(tm_f)
 
     def set_action(self, dance_type, dance_time=0.234, reset=True, reset_time=0.234):
+        """
+        参数的含义:
+        :dance_type: 动作类型,分为前倾,后倾,左倾,右倾.
+        :dance_time: 做动作的时间.单位: 秒.
+        :reset: 做完动作是否复位
+        :reset_time: 复位的时间.
+        """
         ret = isinstance(dance_type, DanceType)
         if ret:
             """
